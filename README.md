@@ -7,6 +7,11 @@ commands:
 
 make
 
-./main /path/to/the/files
+./main [path] [-o outputFolder]
 
-It will output the files to folder /path/to/the/files/mp3_output/. You have to create this folder beforehand. The files will have the same name as the audio, but in mp3 format
+the outputFolder is optional, default is path/mp3_output
+
+so here is example
+./main /path/to/folder -o mp3_output
+
+this code will save the result to /path/to/folder/mp3_output

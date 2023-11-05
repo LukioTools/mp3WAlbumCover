@@ -150,16 +150,45 @@ bool findFiles(std::vector<AudioImageFile> &objects, std::string folder, std::st
 }
 
 int main(int argc, char *argv[]){
-    log("given path to files: " << argv[1])
+
+    if (argc < 2) {
+        std::cerr << "Usage: " << argv[0] << " /path/to/folder [-o /output/folder]" << std::endl;
+        return 1;
+    }
+
+    std::string inputFolder = argv[1];
+    std::string outputFolder;
+
+    if (argc > 2) {
+        // Check if the third argument is the -o flag
+        if (std::string(argv[2]) == "-o") {
+            if (argc > 3) {
+                // -o flag is present, and the output folder path exists
+                outputFolder = argv[3];
+            } else {
+                std::cerr << "No output folder path provided after -o flag." << std::endl;
+                return 1;
+            }
+        } else {
+            // No -o flag present, consider the third argument as the output folder
+            outputFolder = argv[2];
+        }
+    }
+
+    if (outputFolder.empty())
+    {
+        outputFolder = "/mp3_output";
+    }
+    
 
     std::vector<AudioImageFile> objects;
-    std::string folder = argv[1];
-    findFiles(objects, folder, "mp3_output");
+
+    findFiles(objects, inputFolder, outputFolder);
 
     log("converting " << objects.size() << " files");
     ConvertFactory cF;
 
-    cF.FactorySetup(objects, folder + "/mp3_output");
+    cF.FactorySetup(objects, inputFolder + outputFolder);
 
 
 }
