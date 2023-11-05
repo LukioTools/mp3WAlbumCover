@@ -895,7 +895,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "rewrite"
+			"value" : "main"
 		},
 		{
 			"name" : "CMAKE_PROJECT_VERSION",

@@ -142,24 +142,6 @@
 		{
 			"isExternal" : true,
 			"path" : "/usr/share/cmake/nlohmann_json/nlohmann_jsonTargets.cmake"
-		},
-		{
-			"isExternal" : true,
-			"path" : "/usr/share/cmake/nlohmann_json/nlohmann_jsonConfigVersion.cmake"
-		},
-		{
-			"isExternal" : true,
-			"path" : "/usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake"
-		},
-		{
-			"isCMake" : true,
-			"isExternal" : true,
-			"path" : "/usr/share/cmake-3.25/Modules/FindPackageHandleStandardArgs.cmake"
-		},
-		{
-			"isCMake" : true,
-			"isExternal" : true,
-			"path" : "/usr/share/cmake-3.25/Modules/FindPackageMessage.cmake"
 		}
 	],
 	"kind" : "cmakeFiles",

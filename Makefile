@@ -149,19 +149,6 @@ main/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/build
 .PHONY : main/fast
 
-#=============================================================================
-# Target rules for targets named rewrite
-
-# Build rule for target.
-rewrite: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 rewrite
-.PHONY : rewrite
-
-# fast build rule for target.
-rewrite/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rewrite.dir/build.make CMakeFiles/rewrite.dir/build
-.PHONY : rewrite/fast
-
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -186,30 +173,6 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/main.cpp.s
 .PHONY : main.cpp.s
 
-rewrite.o: rewrite.cpp.o
-.PHONY : rewrite.o
-
-# target to build an object file
-rewrite.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rewrite.dir/build.make CMakeFiles/rewrite.dir/rewrite.cpp.o
-.PHONY : rewrite.cpp.o
-
-rewrite.i: rewrite.cpp.i
-.PHONY : rewrite.i
-
-# target to preprocess a source file
-rewrite.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rewrite.dir/build.make CMakeFiles/rewrite.dir/rewrite.cpp.i
-.PHONY : rewrite.cpp.i
-
-rewrite.s: rewrite.cpp.s
-.PHONY : rewrite.s
-
-# target to generate assembly for a file
-rewrite.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rewrite.dir/build.make CMakeFiles/rewrite.dir/rewrite.cpp.s
-.PHONY : rewrite.cpp.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -221,13 +184,9 @@ help:
 	@echo "... package_source"
 	@echo "... rebuild_cache"
 	@echo "... main"
-	@echo "... rewrite"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
-	@echo "... rewrite.o"
-	@echo "... rewrite.i"
-	@echo "... rewrite.s"
 .PHONY : help
 
 

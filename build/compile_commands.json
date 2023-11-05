@@ -3,10 +3,5 @@
   "directory": "/home/hiha/c++/audioAlbumCover/build",
   "command": "/usr/bin/g++   -g -o CMakeFiles/main.dir/main.cpp.o -c /home/hiha/c++/audioAlbumCover/main.cpp",
   "file": "/home/hiha/c++/audioAlbumCover/main.cpp"
-},
-{
-  "directory": "/home/hiha/c++/audioAlbumCover/build",
-  "command": "/usr/bin/g++   -g -o CMakeFiles/rewrite.dir/rewrite.cpp.o -c /home/hiha/c++/audioAlbumCover/rewrite.cpp",
-  "file": "/home/hiha/c++/audioAlbumCover/rewrite.cpp"
 }
 ]
