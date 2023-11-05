@@ -7,6 +7,6 @@ commands:
 
 make
 
-./rewrite /path/to/the/files
+./main /path/to/the/files
 
 It will output the files to folder /path/to/the/files/mp3_output/. You have to create this folder beforehand. The files will have the same name as the audio, but in mp3 format
