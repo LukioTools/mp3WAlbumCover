@@ -1,0 +1,1 @@
+/usr/bin/g++ -g -rdynamic CMakeFiles/AlbumCoverCombinerToAudio.dir/main.cpp.o -o AlbumCoverCombinerToAudio 

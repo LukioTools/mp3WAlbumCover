@@ -1,0 +1,6 @@
+/home/hiha/c++/audioAlbumCover/build/CMakeFiles/main.dir
+/home/hiha/c++/audioAlbumCover/build/CMakeFiles/rewrite.dir
+/home/hiha/c++/audioAlbumCover/build/CMakeFiles/package.dir
+/home/hiha/c++/audioAlbumCover/build/CMakeFiles/package_source.dir
+/home/hiha/c++/audioAlbumCover/build/CMakeFiles/edit_cache.dir
+/home/hiha/c++/audioAlbumCover/build/CMakeFiles/rebuild_cache.dir
