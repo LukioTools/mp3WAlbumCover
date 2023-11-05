@@ -1,4 +1,5 @@
 
+#include <fstream>
 #include <map>
 #include <string>
 #include <iostream>
@@ -22,6 +23,7 @@ class AudioImageFile{
 };
 
 namespace Filter{
+    //removes the path, but keeps the extension
     std::string GetFilename(std::string withPath){
         std::regex fileRegex(R"(.*/([^/]*))");
         std::smatch m1;
@@ -29,6 +31,7 @@ namespace Filter{
         return m1[1];
     }
 
+    //keeps path, but removes extension
     std::string GetFilenameWithoutType(std::string withType){
         std::regex fileRegex(R"((.*)(\..*))");
         std::smatch m1;
@@ -109,7 +112,7 @@ class ConvertFactory{
 };
 
 
-bool findFiles(std::vector<AudioImageFile> &objects, std::string folder){
+bool findFiles(std::vector<AudioImageFile> &objects, std::string folder, std::string outputFolder){
     std::vector<std::string> files;
     for (const auto entry : std::filesystem::directory_iterator(folder))
     {
@@ -133,10 +136,13 @@ bool findFiles(std::vector<AudioImageFile> &objects, std::string folder){
             if (i!=j && (m1[1] == m2[1]))
             {
                 //log(files[i] << " : " << files[j])
-                objects.push_back(AudioImageFile(files[i], files[j]));
-                
-                files.erase(files.begin()+i);
-                //files.erase(files.begin()+j);
+                std::ifstream file(folder + "/" + outputFolder + "/" + Filter::GetFilename(Filter::GetFilenameWithoutType(files[i]))+".mp3");
+                if(!file){
+                    objects.push_back(AudioImageFile(files[i], files[j]));
+                    
+                    files.erase(files.begin()+i);
+                    //files.erase(files.begin()+j);
+                }
             }   
         }
     }
@@ -148,7 +154,7 @@ int main(int argc, char *argv[]){
 
     std::vector<AudioImageFile> objects;
     std::string folder = argv[1];
-    findFiles(objects, folder);
+    findFiles(objects, folder, "mp3_output");
 
     log("converting " << objects.size() << " files");
     ConvertFactory cF;
