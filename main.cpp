@@ -1,101 +1,97 @@
-#include <iostream>
-#include <regex>
+
+#include <map>
 #include <string>
+#include <iostream>
 #include <thread>
 #include <vector>
 #include <filesystem>
+#include <regex>
 #include <atomic>
-#include <thread> 
+
+#include "queue.hpp"
 
 #define log(smth) std::cout << smth << std::endl;
 
-class File{
+class AudioImageFile{
     public:
-    std::string name;
-    std::string folder;
-    
-    File(std::string n, std::string f){
-        name = n;
-        folder = f;
+    std::string audiofile, imageFile;
+    AudioImageFile(std::string a, std::string i){
+        audiofile = a;
+        imageFile = i;
     }
 };
 
-template<typename param_t>
-class queue{
+namespace Filter{
+    std::string GetFilename(std::string withPath){
+        std::regex fileRegex(R"(.*/([^/]*))");
+        std::smatch m1;
+        std::regex_match(withPath, m1, fileRegex);
+        return m1[1];
+    }
+
+    std::string GetFilenameWithoutType(std::string withType){
+        std::regex fileRegex(R"((.*)(\..*))");
+        std::smatch m1;
+        std::regex_match(withType, m1, fileRegex);
+        return m1[1];
+    }
+}
+
+std::regex AudioRegex("audio");
+std::regex thumbnailRegex("image");
+std::regex outputRegex("output");
+
+class ConvertFactory{
 
     public:
-    std::vector<param_t> queue;   
 
-    void push_back(param_t object){
-        queue.push_back(object);
-    }
-
-    int size(){
-        queue.size();
-    }
-
-    param_t pop_front(){
-        if(queue.size() > 0){
-            param_t p = queue[0];
-            queue.erase(queue.begin());
-            return p;
-        } else throw std::out_of_range("The queue is empty.");
-    }
-};
-
-class ThreadFactory{
-
-    void convert(File file, std::string output, std::atomic<int>& threadCount){
+    void convert(AudioImageFile file, std::string outputFolder, std::atomic<int>& threadCount){
         threadCount += 1;
-        std::regex AudioRegex("audio");
-        std::regex thumbnailRegex("image");
-        std::regex outputRegex("output");
 
-        std::string vid = file.folder + "/" + file.name + ".webm";
-        std::string thumbnail = file.folder + "/" + file.name + ".webp";
-        output = output;
+        std::string audio = file.audiofile;
+        std::string thumbnail = file.imageFile;
 
-        std::string ffmpeg = "ffmpeg -i \"audio\" -i \"image\" -c:a libmp3lame -q:a 2 -map 0:a -map 1:v -c:v copy -id3v2_version 3 -metadata:s:v title=\"Album cover\" -metadata:s:v comment=\"Cover (front)\" \"output\"";
+        std::string ffmpeg = "ffmpeg -i  \"audio\" -i \"image\" -map 0 -map 1 \"output\" > /dev/null 2>&1";
         
-        std::string result = std::regex_replace(ffmpeg, AudioRegex, vid);
+        std::string result = std::regex_replace(ffmpeg, AudioRegex, audio);
         result = std::regex_replace(result, thumbnailRegex, thumbnail);
-
+        std::string outputname = Filter::GetFilename(file.audiofile);
+        outputname = Filter::GetFilenameWithoutType(outputname);
+        
+        result = std::regex_replace(result, outputRegex, outputFolder + "/" + outputname + ".mp3");
+        //log(result)
         system(result.c_str());
         threadCount -= 1;
     }
     
-    void Factory(std::vector<File> files, std::string path, std::string outputFolder){
-        queue<File> threadqueue;
-        std::atomic<int> threadCountInUse(0);
+
+    void FactoryHandler(std::vector<AudioImageFile> objects, std::string outputFolder){
+        //Generate the queue
+        Queue::Queue<AudioImageFile> queue = Queue::Queue<AudioImageFile>(objects);
 
         std::vector<std::thread> threadsInUse;
 
-        //create queue
+        std::atomic<int> threadCountInUse(0);
 
-        for (int i = 0; i < files.size(); i++)
-        {
-            threadqueue.push_back(files[i]);
-        }
+        //The factory
 
-        log("7")
-        
-
-        //loop the queue
         while (true)
         {
-            if (threadCountInUse < 100)
-            {
-                try
+            try
                 {
-                    File f = threadqueue.pop_front();
-                    threadsInUse.push_back(std::thread(&ThreadFactory::convert, this, f, outputFolder, std::ref(threadCountInUse)));  
-                    //auto thread = std::thread(&ThreadFactory::test, this, 1);
+                    if (threadCountInUse < 10)
+                    {
+                        AudioImageFile f = queue.pop_front();
+                        threadsInUse.push_back(std::thread(&ConvertFactory::convert, this, f, outputFolder, std::ref(threadCountInUse)));  
+                        //auto thread = std::thread(&ThreadFactory::test, this, 1);
+                        log("there is still " << queue.size() << " audio to convert");
+                    }
+                    
                 }
                 catch(const std::out_of_range& e)
                 {
                     break;
-                }                
-            }
+                }
         }
         
         for (int i = 0; i < threadsInUse.size(); i++)
@@ -103,59 +99,61 @@ class ThreadFactory{
             threadsInUse[i].join();
         }
         
-
+        
     }
 
-    public:
-    void startFactory(std::vector<File> files, std::string folder, std::string outputfolder){
-        log(5)
-        auto factory = std::thread(&ThreadFactory::Factory, this, files, folder, outputfolder);
+    void FactorySetup(std::vector<AudioImageFile> objs, std::string outputFolder){
+        std::thread factory(&ConvertFactory::FactoryHandler, this, objs, outputFolder);
         factory.join();
-        log(6)
-    }  
+    }
 };
 
-bool convertwebmp(std::string name, std::string folder, std::string output){
-    
-    std::regex AudioRegex("audio");
-    std::regex thumbnailRegex("image");
-    std::regex outputRegex("output");
 
-    std::string vid = folder + "/" + name + ".webm";
-    std::string thumbnail = folder + "/" + name + ".webp";
-    output = output;
-
-    std::string ffmpeg = "ffmpeg -i audio -i image -c:a libmp3lame -q:a 2 -map 0:a -map 1:v -c:v copy -id3v2_version 3 -metadata:s:v title=\"Album cover\" -metadata:s:v comment=\"Cover (front)\" output";
-    
-    std::string result = std::regex_replace(ffmpeg, AudioRegex, vid);
-    result = std::regex_replace(result, thumbnailRegex, thumbnail);
-
-    system(result.c_str());
-    return true;
-}
-
-
-bool findFiles(std::vector<File> &files, std::string folder){
+bool findFiles(std::vector<AudioImageFile> &objects, std::string folder){
+    std::vector<std::string> files;
     for (const auto entry : std::filesystem::directory_iterator(folder))
     {
-        files.push_back(File(entry.path().filename().stem().string(), entry.path().parent_path()));
+        files.push_back(entry.path().string());
     }
-    
-    return true;
+
+    std::regex fileRegex(R"((.*)(\..*))");
+
+    log("there is " << files.size() << " files")
+
+    for (int i = 0; i < files.size(); i++)
+    {
+        for (int j = 0; j < files.size(); j++)
+        {
+            std::smatch m1, m2;
+            std::regex_match(files[i], m1, fileRegex);
+            std::regex_match(files[j], m2, fileRegex);
+
+            //log(i  << "  ---   " << m1[1] << " : " << m2[1]);
+
+            if (i!=j && (m1[1] == m2[1]))
+            {
+                //log(files[i] << " : " << files[j])
+                objects.push_back(AudioImageFile(files[i], files[j]));
+                
+                files.erase(files.begin()+i);
+                //files.erase(files.begin()+j);
+            }   
+        }
+    }
+    return true;  
 }
 
+int main(int argc, char *argv[]){
+    log("given path to files: " << argv[1])
 
-int main(int, char**){
-    std::vector<File> files;
-    std::string folder = "/home/hiha/Music/test";
-    log("1")
-    findFiles(files, folder);
-    log("2")
+    std::vector<AudioImageFile> objects;
+    std::string folder = argv[1];
+    findFiles(objects, folder);
 
-    ThreadFactory fac;
-    log("3")
-    fac.startFactory(files, folder, folder + "/mp3_output");
-    log(4)
+    log("converting " << objects.size() << " files");
+    ConvertFactory cF;
 
-    return 0;
+    cF.FactorySetup(objects, folder + "/mp3_output");
+
+
 }
